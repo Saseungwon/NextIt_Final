@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.attach.service.AttachDao">
+	<insert id="registAttaches" parameterType="com.nextit.attach.vo.AttachVO">
+		INSERT INTO attach (
+		    atch_no
+		    , atch_parent_no
+		    , atch_file_name
+		    , atch_original_name
+		    , atch_file_size
+		    , atch_fancy_size
+		    , atch_content_type
+		    , atch_path
+		    , atch_down_hit
+		    , atch_del_yn
+		    , atch_reg_date
+		) VALUES (
+		    seq_attach_no.NEXTVAL
+		    , #{atchParentNo}
+		    , #{atchFileName}
+		    , #{atchOriginalName}
+		    , #{atchFileSize}
+		    , #{atchFancySize}
+		    , #{atchContentType}
+		    , #{atchPath}
+		    , 0
+		    , 'N'
+		    , SYSDATE
+		)
+	</insert>
+	
+	<select id="getAttachByParentNoList" resultType="com.nextit.attach.vo.AttachVO">
+	<foreach collection="int[]"></foreach>
+		SELECT atch_no
+		       , atch_original_name
+		       , atch_fancy_size
+		       , atch_down_hit
+		FROM attach
+		WHERE atch_category  = #{category}
+		  AND atch_parent_no = #{parentNo}
+		  AND atch_del_yn    = 'N'
+	</select>
+	
+	<select id="getAttach" parameterType="int" resultType="com.nextit.attach.vo.AttachVO">
+		SELECT atch_no
+		     , atch_parent_no
+		     , atch_file_name
+		     , atch_original_name
+		     , atch_file_size
+		     , atch_fancy_size
+		     , atch_content_type
+		     , atch_path
+		     , atch_down_hit
+		     , atch_del_yn
+		     , atch_reg_date
+		  FROM attach
+		 WHERE atch_no = #{atchNo}
+		   AND atch_del_yn = 'N'
+	</select>
+	
+	<update id="increaseDownHit" parameterType="int">
+		UPDATE attach
+		   SET atch_down_hit = atch_down_hit + 1
+		 WHERE atch_no = #{atchNo}
+	</update>
+</mapper>

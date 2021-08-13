@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.reply.service.ReplyDao">
+
+	<insert id="insertReReply" parameterType="com.nextit.reply.vo.ReplyVO">
+		INSERT INTO reply
+				VALUES (
+					SEQ_REPLY.NEXTVAL,
+    				#{reParentNo},
+    				#{reWriter},
+    				#{reContent},
+    				SYSDATE,
+    				NULL,
+    				#{reLike},
+    				'N',
+    				#{reMemId},
+    				#{reBoNo}
+				)
+	</insert>
+	
+	<select id="getReplyCountByParent" parameterType="com.nextit.reply.vo.ReplySearchVO" resultType="int">
+		SELECT COUNT(*)
+		FROM reply
+		WHERE re_bo_no = #{reBoNo}
+		AND	   re_del_yn = 'N'
+	</select>
+	
+	<select id="getReplyListByParent" parameterType="com.nextit.reply.vo.ReplySearchVO" resultType="com.nextit.reply.vo.ReplyVO">
+		SELECT *
+			FROM (
+				SELECT a.*, ROWNUM AS rnum
+				FROM (
+					SELECT re_no,  re_parent_no,
+					       (SELECT mem_name FROM member WHERE re_mem_id = mem_id) AS re_writer,
+					       re_content,
+					       TO_CHAR(re_reg_date, 'YYYY/MM/DD HH24:MI') AS re_reg_date,
+					       TO_CHAR(re_mod_date, 'YYYY/MM/DD HH24:MI') AS re_mod_date,
+					       re_like,
+					       re_del_yn,
+					       re_mem_id, 
+					       re_bo_no
+					FROM reply
+					WHERE re_bo_no = #{reBoNo}
+					AND	   re_del_yn = 'N'
+					ORDER BY re_no
+				) a
+			) b
+		WHERE rnum BETWEEN #{firstRow} AND #{lastRow}
+	</select>
+	
+	<select id="getReply" parameterType="int" resultType="com.nextit.reply.vo.ReplyVO">
+		SELECT *
+		FROM reply
+		WHERE re_no = #{a}
+		AND	   re_del_yn = 'N'
+	</select>
+	
+	<insert id="insertReply" parameterType="com.nextit.reply.vo.ReplyVO">
+		INSERT INTO reply
+				VALUES (
+					SEQ_REPLY.NEXTVAL,
+    				#{reParentNo},
+    				#{reWriter},
+    				#{reContent},
+    				SYSDATE,
+    				NULL,
+    				#{reLike},
+    				'N',
+    				#{reMemId},
+    				#{reBoNo}
+				)
+	</insert>
+	
+	
+	<update id="updateReply" parameterType="com.nextit.reply.vo.ReplyVO">
+		UPDATE reply
+		SET re_content = #{reContent}
+		WHERE re_no = #{reNo}
+	</update>
+	
+	
+	<update id="deleteReply" parameterType="com.nextit.reply.vo.ReplyVO">
+		UPDATE reply
+		SET re_del_yn = 'Y'
+		WHERE re_no = #{reNo}
+	</update>
+</mapper>

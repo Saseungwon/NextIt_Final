@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.team.service.TeamDao">
+	<select id="getTeamList" resultType="com.nextit.team.vo.TeamVO">
+		SELECT team_name
+		     , team_image_url
+		     , team_point
+		     , team_league
+		     , TO_CHAR(team_reg_date, 'yyyy-mm-dd') AS team_reg_date
+		     , team_profile
+		     , team_region
+		  FROM team
+	</select>
+	
+	<select id="getTeamInfo" parameterType="String" resultType="com.nextit.team.vo.TeamVO">
+		SELECT team_name
+		       , team_image_url
+		       , team_point
+		       , team_league
+		       , TO_CHAR(team_reg_date, 'yyyy-mm-dd') AS team_reg_date
+		       , team_profile
+		       , team_region
+		  FROM team
+		 WHERE team_name = #{teamName}
+	</select>
+	
+	<insert id="registTeam" parameterType="com.nextit.team.vo.TeamVO">
+		INSERT INTO team (
+		    team_name
+		    , team_image_url
+		    , team_point
+		    , team_reg_date
+		    , team_profile
+		    , team_region
+		) VALUES (
+		    #{teamName}
+		    , #{teamImageUrl}
+		    , 0
+		    , SYSDATE
+		    , #{teamProfile}
+		    , #{teamRegion}
+		)
+	</insert>
+	
+	<delete id="deleteTeam" parameterType="String">
+		DELETE FROM team
+		WHERE team_name = #{teamName}	
+	</delete>
+	
+	<update id="quitTeam" parameterType="String">
+		UPDATE member SET
+			mem_team_name = null,
+			MEM_TEAM_REG_DATE = null,
+			MEM_BACK_NO = null,
+			MEM_TEAM_PREF = null,
+			MEM_TEAM_ROLE = null 
+		WHERE mem_id = #{memId}
+	</update>
+	
+	<update id="joinTeam" parameterType="com.nextit.member.vo.MemberVO">
+		UPDATE member SET
+			mem_team_name = #{memTeamName},
+			MEM_TEAM_REG_DATE = SYSDATE,
+			MEM_BACK_NO = #{memBackNo},
+			MEM_TEAM_PREF = #{memTeamPref},
+			MEM_TEAM_ROLE = 'USER' 
+		WHERE mem_id = #{memId}
+	</update>
+</mapper>

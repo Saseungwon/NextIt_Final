@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.main.service.MainDao">
+	<select id="getArticleList" resultType="com.nextit.main.vo.ArticleVO">
+		SELECT *
+		FROM
+			(
+			SELECT ROWNUM as rnum, a.*
+			FROM 
+				(
+		        SELECT atc_no
+		             , atc_img
+		             , atc_title
+		             , atc_source
+		             , atc_date
+		             , atc_link
+		        FROM article
+				ORDER BY atc_no DESC
+				) a
+			) b
+		WHERE rnum BETWEEN 1 AND 4
+	</select>
+
+	<select id="getFreeBoardList" resultType="com.nextit.board.vo.BoardVO">
+		SELECT *
+		FROM
+		    (
+		    SELECT a.bo_no
+		           , ROW_NUMBER() OVER(ORDER BY a.bo_no DESC) AS rknum
+		           , a.bo_cate
+		           , a.bo_title
+		           , a.bo_sub_cate
+		           , a.bo_hit
+		           , a.bo_reg_date
+		           , a.bo_mod_date
+		           , a.bo_del_yn
+		           , a.bo_content
+		           , a.bo_like
+		           , a.bo_mem_id
+		           , a.bo_team_name
+		           , a.bo_writer
+		           , a.bo_pos
+		           , b.cate_kname
+		    FROM board a
+		         , bo_cate b
+            WHERE a.bo_cate = 'FREE'
+              AND b.cate_hrchy = 'FREE'
+              AND a.bo_sub_cate = b.cate_name
+              AND a.bo_del_yn = 'N'
+		  )
+		WHERE rknum BETWEEN 1 AND 10
+	</select>
+	
+	<select id="getOpeningsList" parameterType="com.nextit.member.vo.MemberVO" resultType="com.nextit.board.vo.BoardVO">
+		SELECT *
+		FROM
+			(
+			SELECT ROWNUM as rnum, a.*
+			FROM
+				(
+				SELECT bo_no
+				     , bo_title
+				     , bo_sub_cate
+				     , bo_mod_date
+				     , bo_team_name
+				     , bo_pos
+				  FROM board
+				 WHERE 1 = 1
+				   AND bo_cate = 'OPENINGS'
+				   AND bo_del_yn = 'N'
+		<choose>
+			<when test="memTeamName == null">
+				   AND bo_sub_cate = 'OFFER'
+			</when>
+			<otherwise>
+				   AND bo_sub_cate = 'SEARCH'
+			</otherwise>
+		</choose>
+		     ORDER BY bo_no DESC
+				) a
+			) b
+		WHERE rnum BETWEEN 1 AND 10
+	</select>
+	
+	<select id="getMatchInfoList" resultType="com.nextit.match.vo.MatchVO">
+		SELECT match_name
+		     , TO_CHAR(match_start, 'yyyy-mm-dd') AS match_start
+		     , TO_CHAR(match_end, 'yyyy-mm-dd') AS match_end
+		     , match_image
+		  FROM match_info
+	</select>
+</mapper>

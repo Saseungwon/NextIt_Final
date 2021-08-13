@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.tatics.service.TaticsDao">
+	<select id="getTeamList" parameterType="String" resultType="com.nextit.tatics.vo.TaticsVO">
+		select a.mem_pref as tts_mem_pos, 
+				a.mem_name as tts_mem_name, 
+				count(b.rcd_mem_id) as tts_cnt, 
+				SUM(nvl(b.rcd_goal, 0)) as tts_goal, 
+				SUM(nvl(b.rcd_assist, 0)) as tts_assi
+		from member a, member_record b
+		where a.mem_id = b.rcd_mem_id(+)
+		and   a.mem_team_name = #{memTeamName }
+		group by a.mem_name, a.mem_pref
+		order by 3 desc
+	</select>
+	
+	<select id="getHighGoal" parameterType="String" resultType="com.nextit.tatics.vo.TaticsVO">
+		SELECT *
+		FROM(
+		    SELECT b.mem_name as tts_mem_name, 
+		           sum(rcd_goal) AS tts_total_goal,
+          			 b.mem_image_url AS tts_mem_image_url
+		    FROM member_record a, member b
+		    WHERE a.rcd_mem_id = b.mem_id
+		    AND b.mem_team_name = #{memTeamName }
+		    GROUP BY a.rcd_mem_id, b.mem_name, b.mem_image_url
+		    ORDER BY 2 desc)
+		WHERE ROWNUM = 1
+	</select>
+	
+	
+		
+	<select id="getHighAssi" parameterType="String" resultType="com.nextit.tatics.vo.TaticsVO">
+      		SELECT *
+			FROM(
+			    SELECT b.mem_name as tts_mem_name, 
+			           sum(rcd_assist) AS tts_total_assi,
+	          			 b.mem_image_url AS tts_mem_image_url
+			    FROM member_record a, member b
+			    WHERE a.rcd_mem_id = b.mem_id
+			    AND b.mem_team_name = #{memTeamName }
+			    GROUP BY a.rcd_mem_id, b.mem_name, b.mem_image_url
+			    ORDER BY 2 desc)
+			WHERE ROWNUM = 1
+	</select>
+	
+	
+	
+	
+
+</mapper>

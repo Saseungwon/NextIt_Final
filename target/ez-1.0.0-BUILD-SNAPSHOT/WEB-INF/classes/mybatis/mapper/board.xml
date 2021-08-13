@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.free.service.BoardDao">
+
+	<!-- id 메소드 이름 -->
+	<select id="getBoardCount"
+		parameterType="com.nextit.free.vo.FreeBoardSearchVO" resultType="int">
+		SELECT COUNT(*)
+		FROM board
+		where bo_del_yn = 'N'
+		AND bo_cate='FREE'
+		<if test="searchWord != null"> <!-- 검색어에 따라 리스트 나오게 설정 -->
+			<choose>
+				<when test='searchType=="T"'>
+					and bo_title like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="W"'>
+					and bo_writer like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="C"'>
+					and bo_content like '%' || #{searchWord} || '%'
+				</when>
+			</choose>
+		</if>
+	</select>
+
+
+
+	<select id="getBoardList"
+		resultType="com.nextit.board.vo.BoardVO"
+		parameterType="com.nextit.free.vo.FreeBoardSearchVO">
+
+		SELECT *
+		FROM (
+		SELECT a.*
+		, ROWNUM AS rnum
+		FROM (
+		SELECT a.bo_no
+		,
+		a.bo_title
+		, a.bo_cate
+		, a.bo_sub_cate
+		, a.bo_writer
+		, a.bo_content
+		,
+		a.bo_hit
+		, a.bo_reg_date
+		, a.bo_mod_date
+		, a.bo_mem_id
+		, a.bo_del_yn
+		,
+		b.cate_kname
+		FROM board a
+		, bo_cate b
+		WHERE a.bo_cate = b.cate_hrchy
+		AND
+		a.bo_sub_cate = b.cate_name
+		AND bo_cate = 'FREE'
+		AND bo_del_yn = 'N'
+		<if test="searchWord != null"> <!-- 검색어에 따라 리스트 나오게 설정 -->
+			<choose>
+				<when test='searchType=="T"'>
+					and bo_title like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="W"'>
+					and bo_writer like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="C"'>
+					and bo_content like '%' || #{searchWord} || '%'
+				</when>
+			</choose>
+		</if>
+		ORDER BY bo_no DESC) a) b
+		where rnum between #{firstRow} and #{lastRow}
+	</select>
+	
+	<select id="getBoardListYn"
+		resultType="com.nextit.board.vo.BoardVO"
+		parameterType="com.nextit.free.vo.FreeBoardSearchVO">
+
+		SELECT *
+		FROM (
+		SELECT a.*
+		, ROWNUM AS rnum
+		FROM (
+		SELECT a.bo_no
+		,
+		a.bo_title
+		, a.bo_cate
+		, a.bo_sub_cate
+		, a.bo_writer
+		, a.bo_content
+		,
+		a.bo_hit
+		, a.bo_reg_date
+		, a.bo_mod_date
+		, a.bo_mem_id
+		, a.bo_del_yn
+		,
+		b.cate_kname
+		FROM board a
+		, bo_cate b
+		WHERE a.bo_cate = b.cate_hrchy
+		AND
+		a.bo_sub_cate = b.cate_name
+		AND bo_cate = 'FREE'
+		<if test="searchWord != null"> <!-- 검색어에 따라 리스트 나오게 설정 -->
+			<choose>
+				<when test='searchType=="T"'>
+					and bo_title like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="W"'>
+					and bo_writer like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchType=="C"'>
+					and bo_content like '%' || #{searchWord} || '%'
+				</when>
+			</choose>
+		</if>
+		ORDER BY bo_no DESC) a) b
+		where rnum between #{firstRow} and #{lastRow}
+	</select>
+
+	<select id="getBoard" resultType="com.nextit.board.vo.BoardVO"
+		parameterType="int">
+		select bo_no, bo_title, bo_cate,
+		bo_writer, bo_content,
+		bo_hit,
+		to_char(bo_reg_date,'YYYY-MM-DD') AS bo_reg_date,
+		to_char(bo_mod_date,'YYYY-MM-DD') AS bo_mod_date,
+		bo_del_yn,
+		cate_kname
+		FROM board a, bo_cate b
+		WHERE a.bo_cate = b.cate_hrchy
+		AND a.bo_sub_cate
+		= b.cate_name
+		and bo_no=#{boNo}
+		
+	</select>
+
+	<update id="increaseHit" parameterType="int">
+		update board set
+		bo_hit=
+		bo_hit +1
+		where bo_no = #{int}
+	</update>
+
+	<update id="updateBoard"
+		parameterType="com.nextit.board.vo.BoardVO">
+		update board set
+		bo_title= #{boTitle} ,
+		bo_cate= #{boCate}
+		,
+		bo_content= #{boContent} ,
+		bo_mod_date= sysdate
+		where bo_no = #{boNo}
+	</update>
+
+	<update id="deleteBoard"
+		parameterType="com.nextit.board.vo.BoardVO">
+		update board set
+		bo_del_yn = 'Y'
+		where bo_no = #{boNo}
+	</update>
+	
+	<update id="restoreBoard"
+		parameterType="com.nextit.board.vo.BoardVO">
+		update board set
+		bo_del_yn = 'N'
+		where bo_no = #{boNo}
+	</update>
+	
+	<insert id="insertBoard"
+		parameterType="com.nextit.board.vo.BoardVO">
+		insert into board (
+		bo_no,
+		bo_title,
+		bo_cate,
+		bo_content,
+		bo_reg_date,
+		bo_mod_date,
+		bo_del_yn,
+		bo_sub_cate,
+		bo_mem_id,
+		bo_hit,
+		bo_writer,
+		bo_pos,
+		bo_team_name
+		) values
+		(
+		SEQ_BOARD_NO.NEXTVAL,
+		#{boTitle},
+		'FREE',
+		#{boContent},
+		sysdate,
+		null,
+		'N',
+		#{boSubCate},
+		#{boMemId },
+		0,
+		#{boWriter },
+		#{boPos },
+		#{boTeamName }
+		)
+	</insert>
+
+</mapper>

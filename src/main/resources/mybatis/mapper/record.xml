@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.record.service.RecordDao">
+	<select id="getMemRcd" parameterType="String" resultType="com.nextit.record.vo.MemberRecordVO" >
+		SELECT rcd_match_no
+		       , rcd_mem_id
+		       , rcd_match_cate
+		       , rcd_goal
+		       , rcd_assist
+		FROM member_record
+		where rcd_mem_id = #{memId}
+	</select>
+	
+	<select id="getFrdRcd" parameterType="String" resultType="com.nextit.record.vo.FriendlyRecordVO">
+		SELECT fnd_match_no
+		       , fnd_team_name
+		       , fnd_score
+		FROM friendly_record
+		where fnd_team_name = #{teamName}
+	</select>
+
+	<select id="getLeaRcd" parameterType="String" resultType="com.nextit.record.vo.LeagueRecordVO">
+		SELECT lea_match_no
+		       , lea_team_name
+		       , lea_score
+		       , lea_no
+		       , lea_quarter
+		FROM league_record
+		where lea_team_name = #{teamName}
+	</select>
+	
+	<insert id="insertMemRcd" parameterType="com.nextit.record.vo.MemberRecordVO">
+		INSERT INTO member_record (
+		    rcd_match_no
+		    , rcd_mem_id
+		    , rcd_match_cate
+		    , rcd_goal
+		    , rcd_assist
+		) VALUES (
+		    #{rcdMatchNo}
+		    , #{rcdMemId}
+		    , #{rcdMatchCate}
+		    , #{rcdGoal}
+		    , #{rcdAssist}
+		)
+		
+	</insert>
+	
+	<insert id="insertFrdRcd" parameterType="com.nextit.record.vo.FriendlyRecordVO">
+		INSERT INTO friendly_record (
+		    fnd_match_no
+		    , fnd_team_name
+		    , fnd_score
+		) VALUES (
+		    SEQ_FND_NO.nextval
+		    , #{fndTeamName}
+		    , #{fndScore}
+		)
+	</insert>
+
+	<insert id="insertLeaRcd" parameterType="com.nextit.record.vo.LeagueRecordVO">
+		INSERT INTO league_record (
+		    lea_match_no
+		    , lea_team_name
+		    , lea_score
+		    , lea_no
+		    , lea_quarter
+		) VALUES (
+		    SEQ_LEA_NO.nextval
+		    , #{leaTeamName}
+		    , #{leaScore}
+		    , #{leaNo}
+		    , #{leaQuarter}
+		)
+	</insert>
+	
+	<select id="checkMemRcd" parameterType="HashMap" resultType="com.nextit.record.vo.MemberRecordVO">
+		SELECT rcd_match_no
+		       ,rcd_mem_id
+		       , rcd_match_cate     
+		FROM member_record
+		where  rcd_match_no = #{rcdMatchNo}
+		and rcd_mem_id = #{rcdMemId}
+		and rcd_match_cate  = #{rcdMatchCate} 
+	</select>
+	
+	<select id="checkFrdRcd" parameterType="HashMap" resultType="com.nextit.record.vo.FriendlyRecordVO"> 
+		SELECT fnd_match_no
+		       , fnd_team_name
+		       , fnd_score
+		FROM friendly_record
+		where fnd_team_name = #{fndTeamName}
+		and fnd_match_no= #{fndMatchNo}
+	</select>
+	
+	<select id="checkLeaRcd" parameterType="HashMap" resultType="com.nextit.record.vo.LeagueRecordVO">
+		SELECT lea_match_no
+		       , lea_team_name
+		       , lea_score
+		       , lea_no
+		       , lea_quarter
+		FROM league_record
+		where lea_team_name = #{leaTeamName}
+		and lea_match_no = #{leaMatchNo}
+	</select>
+	
+	<select id="getRecordCount" parameterType="String" resultType="com.nextit.record.vo.MemberRecordCountVO">
+		SELECT rcd_match_cate as match_cate
+		       , count(rcd_match_no) as total_match
+		       , sum(rcd_goal) as total_goal
+		       , sum(rcd_assist) as total_assist
+		FROM member_record
+		where rcd_mem_id = #{memId}
+		group by rcd_mem_id,rcd_match_cate
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

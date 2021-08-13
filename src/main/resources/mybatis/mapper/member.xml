@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.member.service.MemberDao">
+	<select id="getMember" parameterType="String" resultType="com.nextit.member.vo.MemberVO">
+		SELECT mem_id
+		       , mem_pass
+		       , mem_name
+		       , mem_zip
+		       , mem_addr1
+		       , mem_addr2
+		       , TO_CHAR(mem_bir, 'YYYY-MM-DD') as mem_bir
+		       , mem_hp
+		       , mem_profile
+		       , mem_pref
+		       , mem_image_url
+		       , mem_mail
+		       , mem_reg_date
+		       , mem_del_yn
+		       , mem_role
+		       , mem_team_name
+		       , mem_team_reg_date
+		       , mem_back_no
+		       , mem_team_pref
+		       , mem_team_role
+		FROM member
+		WHERE mem_id = #{UserId}
+		and mem_del_yn = 'N'
+	</select>
+	
+	<update id="updateMember" parameterType="com.nextit.member.vo.MemberVO">
+		UPDATE member SET
+			mem_id = #{memId},           
+			mem_pass = #{memPass},          
+			mem_name = #{memName},          
+			mem_zip = #{memZip},           
+			mem_addr1 = #{memAddr1},         
+			mem_addr2 = #{memAddr2},        
+			mem_bir = #{memBir},        
+			mem_hp = #{memHp},            
+			mem_profile = #{memProfile},    
+			mem_pref = #{memPref},        
+			mem_image_url =#{memImageUrl},  
+			mem_mail = #{memMail}     
+		WHERE mem_id = #{memId}	
+	</update>
+	
+	<insert id="insertMember" parameterType="com.nextit.member.vo.MemberVO">
+		INSERT INTO member (
+    	mem_id
+    , mem_pass
+    , mem_name
+    , mem_zip
+    , mem_addr1
+    , mem_addr2
+    , mem_bir
+    , mem_hp
+    , mem_profile
+    , mem_pref
+    , mem_image_url
+    , mem_mail
+    
+) VALUES (
+    #{memId}
+    , #{memPass}
+    , #{memName}
+    , #{memZip}
+    , #{memAddr1}
+    , #{memAddr2}
+    , #{memBir}
+    , #{memHp}
+    , #{memProfile}
+    , #{memPref}
+    , #{memImageUrl}
+    , #{memMail}  
+    
+)
+	</insert>
+	
+	<update id="deleteMember" parameterType="com.nextit.member.vo.MemberVO">
+		UPDATE member SET
+			mem_del_yn = 'Y',
+			mem_team_name = null,
+			MEM_TEAM_REG_DATE = null,
+			MEM_BACK_NO = null,
+			MEM_TEAM_PREF = null,
+			MEM_TEAM_ROLE = null 
+		WHERE mem_id = #{memId}
+	</update>
+	
+	<update id="restoreMember" parameterType="com.nextit.member.vo.MemberVO">
+		UPDATE member SET
+			mem_del_yn = 'N'
+		WHERE mem_id = #{memId}
+	</update>
+	
+	<select id="getUserRole" parameterType="String" resultType="String">
+		SELECT LISTAGG(mem_role, ',') WITHIN GROUP(ORDER BY mem_role)
+		FROM member
+		WHERE mem_id = #{userId}
+	</select>
+	
+	<select id="findId" parameterType="hashMap" resultType="String">
+		SELECT mem_id
+		FROM MEMBER
+		WHERE mem_name = #{memName}
+		AND mem_mail = #{memMail}
+	</select>
+	
+	<select id="findPass" parameterType="hashMap" resultType="String">
+		SELECT mem_pass
+		FROM MEMBER
+		WHERE mem_id = #{memId}
+		AND mem_mail = #{memMail}
+	</select>
+	
+	
+	<select id="getMemList" resultType="com.nextit.member.vo.MemberVO">
+	SELECT mem_id
+		       , mem_pass
+		       , mem_name
+		       , mem_zip
+		       , mem_addr1
+		       , mem_addr2
+		       , TO_CHAR(mem_bir, 'YYYY-MM-DD') as mem_bir
+		       , mem_hp
+		       , mem_profile
+		       , mem_pref
+		       , mem_image_url
+		       , mem_mail
+		       , mem_reg_date
+		       , mem_del_yn
+		       , mem_role
+		       , mem_team_name
+		       , mem_team_reg_date
+		       , mem_back_no
+		       , mem_team_pref
+		       , mem_team_role
+		FROM member
+	</select>
+	
+	<select id="getMemberYn" parameterType="String" resultType="com.nextit.member.vo.MemberVO">
+		SELECT mem_id
+		       , mem_pass
+		       , mem_name
+		       , mem_zip
+		       , mem_addr1
+		       , mem_addr2
+		       , TO_CHAR(mem_bir, 'YYYY-MM-DD') as mem_bir
+		       , mem_hp
+		       , mem_profile
+		       , mem_pref
+		       , mem_image_url
+		       , mem_mail
+		       , mem_reg_date
+		       , mem_del_yn
+		       , mem_role
+		       , mem_team_name
+		       , mem_team_reg_date
+		       , mem_back_no
+		       , mem_team_pref
+		       , mem_team_role
+		FROM member
+		WHERE mem_id = #{UserId}
+	</select>
+</mapper>

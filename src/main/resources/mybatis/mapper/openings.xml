@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nextit.openings.service.OpeningsDao">
+	<resultMap type="com.nextit.board.vo.BoardVO" id="mapForAttaches">
+		<id column="bo_no" property="boNo"/>
+		<result column="bo_cate" property="boCate"/>
+		<result column="bo_title" property="boTitle"/>
+		<result column="bo_sub_cate" property="boSubCate"/>
+		<result column="bo_hit" property="boHit"/>
+		<result column="bo_reg_date" property="boRegDate"/>
+		<result column="bo_mod_date" property="boModDate"/>
+		<result column="bo_del_yn" property="boDelYn"/>
+		<result column="bo_content" property="boContent"/>
+		<result column="bo_like" property="boLike"/>
+		<result column="bo_mem_id" property="boMemId"/>
+		<result column="bo_team_name" property="boTeamName"/>
+		<result column="bo_writer" property="boWriter"/>
+		<result column="bo_pos" property="boPos"/>
+		<collection property="attaches" ofType="com.nextit.attach.vo.AttachVO">
+			<id column="atch_no" property="atchNo"/>
+			<result column="atch_original_name" property="atchOriginalName"/>
+			<result column="atch_fancy_size" property="atchFancySize"/>
+			<result column="atch_down_hit" property="atchDownHit"/>
+		</collection>
+	</resultMap>
+
+	<sql id="search">
+		AND bo_sub_cate = #{searchBoCate}
+		<if test="posCate != ''">
+			AND bo_pos = #{posCate}
+		</if>
+		<if test="searchWord != ''"> <!-- 검색어에 따라 리스트 나오게 설정 -->
+			<choose>
+				<when test='searchCate=="T"'>
+					AND bo_title like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchCate=="W"'>
+					AND bo_mem_id like '%' || #{searchWord} || '%'
+				</when>
+				<when test='searchCate=="C"'>
+					AND bo_content like '%' || #{searchWord} || '%'
+				</when>
+			</choose>
+		</if>
+	</sql>
+	
+	<select id="getOpeningsCount" parameterType="com.nextit.openings.vo.OpeningsSearchVO" resultType="int">
+		SELECT COUNT(bo_no)
+		FROM board
+		WHERE 1 = 1
+		<include refid="search"></include>
+	</select>
+
+	<select id="getOpeningsList" parameterType="com.nextit.openings.vo.OpeningsSearchVO" resultType="com.nextit.board.vo.BoardVO">
+		SELECT *
+		FROM
+			(
+			SELECT ROW_NUMBER() OVER(ORDER BY bo_no DESC) AS rknum
+					, bo_no
+			       , bo_cate
+			       , bo_title
+			       , bo_sub_cate
+			       , bo_hit
+			       , bo_reg_date
+			       , bo_mod_date
+			       , bo_del_yn
+			       , bo_content
+			       , bo_like
+			       , bo_mem_id
+			       , bo_team_name
+			       , bo_writer
+			       , bo_pos
+			FROM board
+			WHERE 1 = 1
+			<include refid="search"></include>
+			)
+		WHERE rknum BETWEEN #{firstRow} AND #{lastRow}
+	</select>
+	
+	<select id="getOpenings" parameterType="int" resultMap="mapForAttaches">
+		SELECT a.bo_no
+		     , a.bo_cate
+		     , a.bo_title
+		     , a.bo_sub_cate
+		     , a.bo_hit
+		     , a.bo_reg_date
+		     , a.bo_mod_date
+		     , a.bo_del_yn
+		     , a.bo_content
+		     , a.bo_like
+		     , a.bo_mem_id
+		     , a.bo_team_name
+		     , a.bo_writer
+		     , a.bo_pos
+		     , b.atch_no
+		     , b.atch_original_name
+		     , b.atch_fancy_size
+		     , b.atch_down_hit
+		FROM board a
+		   , attach b
+		WHERE a.bo_no = b.atch_parent_no(+)
+		  AND a.bo_del_yn = 'N'
+		  AND a.bo_no = #{boNo}
+	</select>
+	
+	<insert id="registOpenings" parameterType="com.nextit.board.vo.BoardVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="boNo">
+			SELECT seq_board_no.NEXTVAL
+			FROM DUAL
+		</selectKey>
+		
+		INSERT INTO board (
+		    bo_no
+		    , bo_cate
+		    , bo_title
+		    , bo_sub_cate
+		    , bo_hit
+		    , bo_reg_date
+		    , bo_mod_date
+		    , bo_del_yn
+		    , bo_content
+		    , bo_like
+		    , bo_mem_id
+		    , bo_team_name
+		    , bo_writer
+		    , bo_pos
+		) VALUES (
+		    #{boNo}
+		    , #{boCate}
+		    , #{boTitle}
+		    , #{boSubCate}
+		    , 0
+		    , SYSDATE
+		    , SYSDATE
+		    , 'N'
+		    , #{boContent}
+		    , 0
+		    , #{boMemId}
+		    , #{boTeamName}
+		    , #{boWriter}
+		    , #{boPos}
+		)
+	</insert>
+</mapper>
