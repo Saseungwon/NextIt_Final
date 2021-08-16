@@ -1,4 +1,4 @@
-# 🏃‍♂️⚽  NextIt 최종 프로젝트(EzMatch : 축구경기 매칭 사이트)
+## 🏃‍♂️⚽  NextIt 최종 프로젝트(EzMatch : 축구경기 매칭 사이트)
 
 ### 👏 https://github.com/Saseungwon/NextIt_Final/tree/master
 
